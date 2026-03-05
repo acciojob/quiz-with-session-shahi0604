@@ -1,7 +1,12 @@
 //your JS code here.
 
-// Do not change code below this line
-// This code will just display the questions to the screen
+const questionsElement = document.getElementById("questions");
+const submitBtn = document.getElementById("submit");
+const scoreElement = document.getElementById("score");
+
+
+let userAnswers = JSON.parse(sessionStorage.getItem("progress")) || {};
+
 const questions = [
   {
     question: "What is the capital of France?",
@@ -30,27 +35,74 @@ const questions = [
   },
 ];
 
-// Display the quiz questions and choices
+
 function renderQuestions() {
   for (let i = 0; i < questions.length; i++) {
     const question = questions[i];
     const questionElement = document.createElement("div");
     const questionText = document.createTextNode(question.question);
     questionElement.appendChild(questionText);
+
     for (let j = 0; j < question.choices.length; j++) {
       const choice = question.choices[j];
+
       const choiceElement = document.createElement("input");
       choiceElement.setAttribute("type", "radio");
       choiceElement.setAttribute("name", `question-${i}`);
       choiceElement.setAttribute("value", choice);
+
       if (userAnswers[i] === choice) {
         choiceElement.setAttribute("checked", true);
       }
+
       const choiceText = document.createTextNode(choice);
+
       questionElement.appendChild(choiceElement);
       questionElement.appendChild(choiceText);
     }
+
     questionsElement.appendChild(questionElement);
   }
 }
 renderQuestions();
+
+
+
+questionsElement.addEventListener("change", function (e) {
+
+  if (e.target.type === "radio") {
+
+    const qIndex = e.target.name.split("-")[1];
+    const value = e.target.value;
+
+    userAnswers[qIndex] = value;
+
+    sessionStorage.setItem("progress", JSON.stringify(userAnswers));
+  }
+});
+
+
+
+submitBtn.addEventListener("click", function () {
+
+  let score = 0;
+
+  for (let i = 0; i < questions.length; i++) {
+
+    if (userAnswers[i] === questions[i].answer) {
+      score++;
+    }
+  }
+
+  scoreElement.textContent = `Your score is ${score} out of 5.`;
+
+  localStorage.setItem("score", score);
+});
+
+
+
+const savedScore = localStorage.getItem("score");
+
+if (savedScore !== null) {
+  scoreElement.textContent = `Your score is ${savedScore} out of 5.`;
+}
